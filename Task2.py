@@ -5,11 +5,15 @@
 #by Aidan Harris s3691198
 
 #!/usr/bin/env python3
+from sense_hat import SenseHat
 import requests
 import json
 import os
+import logging #used to test functionality on pi OS
 
 ACCESS_TOKEN="o.tzyK4MLO5kfz6g34TZ9iWIgEpO9OBE0n"
+logging.basicConfig(level=logging.DEBUG)
+
 #Function will send notification/ used from weekly practicals code
 def send_notification_via_pushbullet(title, body):
     """ Sending notification via pushbullet.
@@ -26,23 +30,29 @@ def send_notification_via_pushbullet(title, body):
         raise Exception('Something wrong')
     else:
         print('complete sending')
+
 #fix temp according to cpu
 def fixTemp(val):
     #TODO copy function from task 1 when complete
     return val
+
 #get temp from sensehat
 def getTemp():
     sense = SenseHat()
     temp = sense.get_temperature()
     temp = fixTemp(temp)
     return temp
+
 #main function
 def main():
     temp = getTemp()
-    if(temp<20)
+    if temp <40:
+        logging.debug("Detected under temp threshold")
         fTemp = round(temp,1)
-        mssg = ("It is currently %d degrees, you might want to grab a jumper.")
+        mssg = ("The temperature is currently %d degrees, you might want to grab a jumper."% fTemp)
         send_notification_via_pushbullet("It is cold", mssg)
+    else:
+        logging.debug("Detected Above Temp threshold")
 
-#Execute
+#Execute program
 main()
