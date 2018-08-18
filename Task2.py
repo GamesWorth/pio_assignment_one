@@ -1,10 +1,10 @@
+#!/usr/bin/python3
 #this program will check the temperature and send a push bullet notification to the phone
 #   get temp from sensehat
 #   check if temp value is under 20 degrees
 #   send message to pushbullet app
 #by Aidan Harris s3691198
 
-#!/usr/bin/env python3
 from sense_hat import SenseHat
 import requests
 import json
@@ -14,6 +14,7 @@ import subprocess
 
 ACCESS_TOKEN="o.tzyK4MLO5kfz6g34TZ9iWIgEpO9OBE0n"
 logging.basicConfig(level=logging.DEBUG)
+factor = 1.5 #value for temp correction
 threshold = 20 #threshold for when to send an alert
 
 #Function will send notification/ used from weekly practicals code
@@ -33,19 +34,18 @@ def send_notification_via_pushbullet(title, body):
     else:
         print('complete sending')
 
-#get temp of cpu to correct sensehat readings
+#get temp of cpu to correct sensehat readings code based on http://yaab-arduino.blogspot.com/2016/08/accurate-temperature-reading-sensehat.html
 def getCpuTemp():
-    res = os.popen("vcgencmd measure_temp").readline()
-    t = float(res.replace("temp=","").replace("'C\n",""))
-    return(t)
+    cpuT = os.popen("vcgencmd measure_temp").readline()
+    val = float(cpuT.replace("temp=","").replace("'C\n",""))
+    return(val)
 
 #fix temp according to cpu
 def fixTemp(val):
-    #TODO copy function from task 1 when complete
     cpu_temp = getCpuTemp()
     logging.debug("CPU temp is %d"% cpu_temp)
     logging.debug("Sense temp is %d"% val)
-    val = val - ((cpu_temp - val)/5.466)
+    val = val - ((cpu_temp - val)/factor)
     logging.debug("corrected temp is %d"% val)
     return val
 

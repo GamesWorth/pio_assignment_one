@@ -7,10 +7,14 @@ from sense_hat import SenseHat
 import datetime
 import sqlite3
 import logging
+import os
 
 logging.basicConfig(level=logging.DEBUG)
 dbname='senseData.db'#database to store logged data
+factor = 1.5 #value for temp correction
 
+
+#insert readings into database
 def logData(time,humd,temp):
     conn=sqlite3.connect(dbname)
     curs=conn.cursor()
@@ -24,24 +28,21 @@ def getTimeStamp():
     return time   
 
 def getCpuTemp():
-    res = os.popen("vcgencmd measure_temp").readline()
-    t = float(res.replace("temp=","").replace("'C\n",""))
-    return(t)
+    cpuT = os.popen("vcgencmd measure_temp").readline()
+    val = float(cpuT.replace("temp=","").replace("'C\n",""))
+    return(val)
 
 #fix temp according to cpu
 def fixTemp(val):
     cpu_temp = getCpuTemp()
-    logging.debug("CPU temp is %d"% cpu_temp)
-    logging.debug("Sense temp is %d"% val)
-    val = val - ((cpu_temp - val)/5.466)
-    logging.debug("corrected temp is %d"% val)
+    val = val - ((cpu_temp - val)/factor)
     return val
 
 def getSenseData():
     sense = SenseHat()
     temp = sense.get_temperature()
     humd = sense.get_humidity()
-    tempFixed = fixTemp(temp)#run function to correct temp for PY cpu temp   
+    tempFixed = fixTemp(temp)#run function to correct temp for Pi cpu temp   
     if temp is not None:
         tempFixed = round(tempFixed, 3)
         humd = round(humd, 3)
