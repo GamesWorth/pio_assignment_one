@@ -10,9 +10,11 @@ import requests
 import json
 import os
 import logging #used to test functionality on pi OS
+import subprocess
 
 ACCESS_TOKEN="o.tzyK4MLO5kfz6g34TZ9iWIgEpO9OBE0n"
 logging.basicConfig(level=logging.DEBUG)
+threshold = 20 #threshold for when to send an alert
 
 #Function will send notification/ used from weekly practicals code
 def send_notification_via_pushbullet(title, body):
@@ -31,25 +33,37 @@ def send_notification_via_pushbullet(title, body):
     else:
         print('complete sending')
 
+#get temp of cpu to correct sensehat readings
+def getCpuTemp():
+    res = os.popen("vcgencmd measure_temp").readline()
+    t = float(res.replace("temp=","").replace("'C\n",""))
+    return(t)
+
 #fix temp according to cpu
 def fixTemp(val):
     #TODO copy function from task 1 when complete
+    cpu_temp = getCpuTemp()
+    logging.debug("CPU temp is %d"% cpu_temp)
+    logging.debug("Sense temp is %d"% val)
+    val = val - ((cpu_temp - val)/5.466)
+    logging.debug("corrected temp is %d"% val)
     return val
 
 #get temp from sensehat
 def getTemp():
     sense = SenseHat()
     temp = sense.get_temperature()
-    temp = fixTemp(temp)
-    return temp
+    if temp is not None:
+        temp = fixTemp(temp)
+        return temp
 
 #main function
 def main():
     temp = getTemp()
-    if temp <40:
+    if temp < threshold:
         logging.debug("Detected under temp threshold")
-        fTemp = round(temp,1)
-        mssg = ("The temperature is currently %d degrees, you might want to grab a jumper."% fTemp)
+        formatTemp = round(temp,1)
+        mssg = ("The temperature is currently %d degrees, you might want to grab a jumper."% formatTemp)
         send_notification_via_pushbullet("It is cold", mssg)
     else:
         logging.debug("Detected Above Temp threshold")
