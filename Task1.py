@@ -10,16 +10,29 @@ import logging
 import os
 
 logging.basicConfig(level=logging.DEBUG)
-dbname='senseData.db'#database to store logged data
+dbname='sensehat.db'#database to store logged data
 factor = 1.5 #value for temp correction
 
 
-#insert readings into database
+#insert readings into database /code from weekly pracs
 def logData(time,humd,temp):
     conn=sqlite3.connect(dbname)
     curs=conn.cursor()
-    curs.execute("INSERT INTO SENSEHAT_data values((?),(?),(?))", (time,humd,temp))
+    curs.execute("INSERT INTO SENSEHAT_data values((?),(?),(?))", (time,temp,humd))
     conn.commit()
+    conn.close()
+    logging.debug(time)
+    #logging.debug("inserted  temp %d, humd %d"% temp,humd)
+    displayData()
+
+
+# display database data
+def displayData():
+    conn=sqlite3.connect(dbname)
+    curs=conn.cursor()
+    print ("\nEntire database contents:\n")
+    for row in curs.execute("SELECT * FROM SenseHat_data"):
+        print (row)
     conn.close()
 
 def getTimeStamp():
@@ -27,6 +40,7 @@ def getTimeStamp():
     #<---if any adjustmants to time format are needed put here<---
     return time   
 
+#get temp of cpu to correct sensehat readings code based on http://yaab-arduino.blogspot.com/2016/08/accurate-temperature-reading-sensehat.html
 def getCpuTemp():
     cpuT = os.popen("vcgencmd measure_temp").readline()
     val = float(cpuT.replace("temp=","").replace("'C\n",""))
@@ -35,7 +49,10 @@ def getCpuTemp():
 #fix temp according to cpu
 def fixTemp(val):
     cpu_temp = getCpuTemp()
+    logging.debug("CPU temp is %d"% cpu_temp)
+    logging.debug("Sense temp is %d"% val)
     val = val - ((cpu_temp - val)/factor)
+    logging.debug("corrected temp is %d"% val)
     return val
 
 def getSenseData():
@@ -46,8 +63,8 @@ def getSenseData():
     if temp is not None:
         tempFixed = round(tempFixed, 3)
         humd = round(humd, 3)
-        time = getTimeStamp
-        logData(time,humd,temp)
+        time = getTimeStamp()
+        logData(time,humd,tempFixed)
 
 def main():
     getSenseData()
