@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 #This Program Should be run on the Pi device at intervals
 #   when run get the temp and humidity from the sense
 #   store in database with timestamp
@@ -9,8 +10,8 @@ import sqlite3
 import logging
 import os
 
-logging.basicConfig(level=logging.DEBUG)
-dbname='sensehat.db'#database to store logged data
+#logging.basicConfig(level=logging.DEBUG)
+dbname='/home/pi/Assignment_1/sensehat.db'#database to store logged data
 factor = 1.5 #value for temp correction
 
 
@@ -21,8 +22,7 @@ def logData(time,humd,temp):
     curs.execute("INSERT INTO SENSEHAT_data values((?),(?),(?))", (time,temp,humd))
     conn.commit()
     conn.close()
-    logging.debug(time)
-    #logging.debug("inserted  temp %d, humd %d"% temp,humd)
+    print("Inserted data into db")
     displayData()
 
 

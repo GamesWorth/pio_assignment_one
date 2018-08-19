@@ -13,7 +13,7 @@ import logging #used to test functionality on pi OS
 import subprocess
 
 ACCESS_TOKEN="o.tzyK4MLO5kfz6g34TZ9iWIgEpO9OBE0n"
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 factor = 1.5 #value for temp correction
 threshold = 20 #threshold for when to send an alert
 
