@@ -5,7 +5,6 @@
 
 '''Uncomment if you dont want to see console print out'''
 #import logging
-#log = logging.getLogger('werkzeug')
 #log.setLevel(logging.ERROR)
 
 # Retrieve data from database
@@ -47,7 +46,7 @@ def getHistData (numSamples):
 		temps, hums = testeData(temps, hums)
 	return dates, temps, hums
 
-# Test data for cleanning possible values not in range
+# Test data for cleaning possible values not in range
 def testeData(temps, hums):
 	n = len(temps)
 	for i in range(0, n-1):
@@ -126,7 +125,7 @@ def plot_temp():
 	ys = temps
 	fig = Figure()
 	axis = fig.add_subplot(1, 1, 1)
-	axis.set_title("Temperature [°C]")
+	axis.set_title("Tempereture [C]")
 	axis.set_xlabel("Samples")
 	axis.grid(True)
 	xs = range(numSamples)
